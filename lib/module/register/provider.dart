@@ -33,21 +33,22 @@ class RegisterProvider extends ChangeNotifier {
         userController.text,
         passController.text,
       );
-
       if (result.error == true) throw Exception(result.message);
-      if (context.mounted) navToLogin(context, result.message ?? '');
+      if (!context.mounted) return;
+      closeDialog(context);
+      navToLogin(context, result.message ?? '');
       return;
     } on Exception catch (e) {
       final message = '$e'.replaceFirst('Exception: ', '');
-      if (context.mounted) showErrorSnackbar(context, message);
+      if (!context.mounted) return;
+      closeDialog(context);
+      showErrorSnackbar(context, message);
     }
-
-    if (context.mounted) closeDialog(context);
   }
 
   void navToLogin(BuildContext context, String message) {
-    context.go(RouteEnum.login.name);
     showSnackbar(context, message);
+    context.go(RouteEnum.login.name);
   }
 
   void formClear() {

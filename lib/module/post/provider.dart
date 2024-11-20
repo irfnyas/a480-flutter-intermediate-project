@@ -42,15 +42,17 @@ class PostProvider extends ChangeNotifier {
       );
 
       if (result.error == true) throw Exception(result.message);
-      if (context.mounted) navToHome(context);
-      if (context.mounted) showSnackbar(context, result.message ?? '');
+      if (!context.mounted) return;
+      closeDialog(context);
+      navToHome(context);
+      showSnackbar(context, result.message ?? '');
       formClear();
     } on Exception catch (e) {
       final message = '$e'.replaceFirst('Exception: ', '');
-      if (context.mounted) showErrorSnackbar(context, message);
+      if (!context.mounted) return;
+      closeDialog(context);
+      showErrorSnackbar(context, message);
     }
-
-    if (context.mounted) closeDialog(context);
   }
 
   Future<void> pickImage(ImageSource source) async {
