@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -36,5 +37,5 @@ void showProgressDialog(BuildContext context) {
 }
 
 void closeDialog(BuildContext context) {
-  Navigator.pop(context);
+  context.pop();
 }
