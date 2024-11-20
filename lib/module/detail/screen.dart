@@ -111,6 +111,7 @@ class DetailLoadedView extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: RichText(
         text: TextSpan(
+          style: Theme.of(context).textTheme.bodyMedium,
           children: [
             TextSpan(
               text: story?.name ?? '',
