@@ -25,5 +25,9 @@ ThemeData baseTheme(ThemeData themeData) {
         borderRadius: BorderRadius.circular(80),
       ),
     ),
+    cardTheme: const CardTheme(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+    ),
   );
 }

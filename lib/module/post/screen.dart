@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -91,8 +92,67 @@ class _PostScreenState extends State<PostScreen> {
                             if (provider.imageFile == null) {
                               return 'Image must not be empty';
                             }
+                            if (provider.withLocation == true &&
+                                provider.latLng == null) {
+                              return 'Wait for location to show...';
+                            }
                             return null;
                           },
+                        ),
+                        const SizedBox(height: 16),
+                        SwitchListTile(
+                          contentPadding: const EdgeInsets.all(0),
+                          title: const Text('Add location?'),
+                          value: provider.withLocation,
+                          onChanged: (_) => provider.switchLocationStatus(
+                            context,
+                          ),
+                        ),
+                        Visibility(
+                          visible: provider.withLocation,
+                          child: Container(
+                            height: 200,
+                            margin: const EdgeInsets.only(top: 16),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).highlightColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Visibility(
+                              visible: provider.latLng != null,
+                              replacement: const CircularProgressIndicator(),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: GoogleMap(
+                                  markers: {
+                                    Marker(
+                                      markerId: const MarkerId('my-location'),
+                                      infoWindow: InfoWindow(
+                                        title: provider.locationName ??
+                                            provider.locationAddress,
+                                        snippet: provider.locationName != null
+                                            ? provider.locationAddress
+                                            : null,
+                                      ),
+                                      position: provider.latLng ??
+                                          const LatLng(
+                                            0.0,
+                                            0.0,
+                                          ),
+                                    )
+                                  },
+                                  initialCameraPosition: CameraPosition(
+                                    zoom: 18,
+                                    target: provider.latLng ??
+                                        const LatLng(
+                                          0.0,
+                                          0.0,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                         const Spacer(),
                         const SizedBox(height: 24),

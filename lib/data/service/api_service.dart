@@ -126,4 +126,26 @@ class ApiService {
 
     return ApiResponse.fromJson(jsonDecode(response.body));
   }
+
+  Future<({String? name, String? displayName})> reverseGeo(
+      double lat, double lon) async {
+    final queryParameters = {
+      'lat': '$lat',
+      'lon': '$lon',
+      'format': 'json',
+    };
+
+    final response = await http.get(
+      Uri.parse('https://nominatim.openstreetmap.org/reverse').replace(
+        queryParameters: queryParameters,
+      ),
+    );
+    if (response.statusCode != 200) throw Exception(exceptionMessage);
+    final data = jsonDecode(response.body);
+    final name = data?['name'] is String ? '${data?['name']}' : null;
+    final displayName =
+        data?['display_name'] is String ? '${data['display_name']}' : null;
+
+    return (name: name, displayName: displayName);
+  }
 }
