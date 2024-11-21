@@ -23,13 +23,38 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchData() async {
+  int pageSize = 10;
+  int currentPage = 0;
+  bool isLastPage = false;
+
+  Future<void> fetchData({bool? init}) async {
+    if (init == true) {
+      currentPage = 0;
+      isLastPage = false;
+    }
+
+    if (isLastPage) return;
+
+    final currentStories = resultState is ViewLoadedState && init != true
+        ? (resultState as ViewLoadedState).stories ?? <Story>[]
+        : <Story>[];
+
+    final newStories = [...currentStories];
+    currentPage++;
+
     try {
-      resultState = ViewLoadingState();
-      final result = await apiService.getStories();
+      if (currentPage == 1) resultState = ViewLoadingState();
+      final result = await apiService.getStories(
+        size: pageSize,
+        page: currentPage,
+      );
+
       resultState = result.error == true
           ? ViewErrorState(result.message ?? '')
-          : ViewLoadedState(stories: result.stories ?? []);
+          : ViewLoadedState(
+              stories: newStories..addAll(result.listStory ?? []));
+
+      isLastPage = (result.listStory ?? []).length < pageSize;
     } on Exception catch (_) {
       resultState = ViewErrorState(ApiService.exceptionMessage);
     }

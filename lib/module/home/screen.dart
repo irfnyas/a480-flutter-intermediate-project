@@ -13,6 +13,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -20,6 +22,18 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       context.read<HomeProvider>().fetchData();
     });
+
+    scrollController.addListener(() {
+      final atEdge = scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent;
+      if (atEdge) context.read<HomeProvider>().fetchData();
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -47,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ViewLoadedState(stories: var stories) => HomeLoadedView(
                   stories: stories ?? [],
+                  scrollController: scrollController,
                 ),
               _ => const CircularProgressIndicator(),
             };
@@ -85,15 +100,36 @@ class HomeErrorView extends StatelessWidget {
 }
 
 class HomeLoadedView extends StatelessWidget {
-  const HomeLoadedView({super.key, required this.stories});
+  const HomeLoadedView({
+    super.key,
+    required this.stories,
+    required this.scrollController,
+  });
+
   final List<Story> stories;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.only(top: 8, bottom: 32),
-      itemCount: stories.length,
-      itemBuilder: (_, i) => StoryCard(story: stories[i]),
+      itemCount: stories.length + 1,
+      itemBuilder: (_, i) {
+        final lastIndex = i == stories.length;
+        if (lastIndex) {
+          return Visibility(
+            visible: !context.read<HomeProvider>().isLastPage,
+            child: const Center(
+              child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        return StoryCard(story: stories[i]);
+      },
+      controller: scrollController,
     );
   }
 }
@@ -138,6 +174,7 @@ class StoryCard extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: RichText(
                   maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                   text: TextSpan(
                     style: Theme.of(context).textTheme.bodyMedium,
                     children: [

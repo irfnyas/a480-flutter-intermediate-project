@@ -101,9 +101,15 @@ class ApiService {
     return ApiResponse.fromJson(jsonDecode(responseData));
   }
 
-  Future<ApiResponse> getStories() async {
+  Future<ApiResponse> getStories({int? page, int? size, int? location}) async {
+    final queryParameters = {
+      'page': page != null ? '$page' : null,
+      'size': size != null ? '$size' : null,
+      'location': location != null ? '$location' : null,
+    };
+
     final response = await http.get(
-      Uri.parse('$baseUrl/stories'),
+      Uri.parse('$baseUrl/stories').replace(queryParameters: queryParameters),
       headers: await headers,
     );
     if (response.statusCode != 200) throw Exception(exceptionMessage);

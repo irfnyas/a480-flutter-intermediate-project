@@ -66,7 +66,7 @@ class PostProvider extends ChangeNotifier {
 
   void navToHome(BuildContext context) {
     context.go(RouteEnum.home.name);
-    context.read<HomeProvider>().fetchData();
+    context.read<HomeProvider>().fetchData(init: true);
   }
 
   void formClear() {
